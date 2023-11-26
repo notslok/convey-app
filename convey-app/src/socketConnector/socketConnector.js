@@ -17,8 +17,17 @@ export const connectWithSocketServer = () => {
     socket.on('element-update', (elementData) => {
         store.dispatch(updateElement(elementData));
     })
+
+    socket.on('whiteboard-clear', () => {
+        // dispatching the action of clearing element state from redux store on frontend side
+        store.dispatch(setElements([]));
+    })
 }
 
 export const emitElementUpdate = (elementData) => {
     socket.emit("element-update", elementData);
+}
+
+export const emitWhiteboardClear = () => {
+    socket.emit("whiteboard-clear");
 }
