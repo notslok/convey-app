@@ -27,6 +27,13 @@ io.on('connection', (socket) => {
 
         socket.broadcast.emit('element-update', elementData);
     })
+
+    socket.on('whiteboard-clear', () => {
+        // emptying the serverside storage of elements(in our case wlwmwnts array)
+        elements = [];
+        
+        socket.broadcast.emit('whiteboard-clear');
+    })
 })
 
 app.get('/', (req, res) => {
