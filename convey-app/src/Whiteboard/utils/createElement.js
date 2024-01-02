@@ -15,7 +15,7 @@ const generateLine = ({x1, y1, x2, y2}) => {
     return generator.line(x1, y1, x2, y2);
 };
 
-export const createElement = ({x1, y1, x2, y2, toolType, id}) => {
+export const createElement = ({x1, y1, x2, y2, toolType, id, text}) => {
     let roughElement;
 
     switch(toolType) {
@@ -30,6 +30,7 @@ export const createElement = ({x1, y1, x2, y2, toolType, id}) => {
                 x2,
                 y2,
             };
+            
         case toolTypes.LINE:
             roughElement = generateLine({x1, y1, x2, y2});
             return{
@@ -41,6 +42,16 @@ export const createElement = ({x1, y1, x2, y2, toolType, id}) => {
                 x2,
                 y2,
             };
+
+        case toolTypes.PENCIL:
+            return {
+                id,
+                type: toolType,
+                points: [{x: x1, y: y1}],
+            };
+        
+        case toolTypes.TEXT:
+            return {id, type: toolType, x1, y1, text: text || ''};
         default:
             throw new Error("Something went wrong while creating element")
     }
