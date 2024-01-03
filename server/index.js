@@ -4,6 +4,7 @@ const http = require('http');
 const cors = require('cors');
 
 const {Server} = require('socket.io');
+// const { cursorSlice } = require('../convey-app/src/CursorOverlay/cursorSlice');
 const server = http.createServer(app);
 
 app.use(cors());
@@ -34,7 +35,18 @@ io.on('connection', (socket) => {
         
         socket.broadcast.emit('whiteboard-clear');
     })
-})
+
+    socket.on('cursor-position', (cursorData) => {
+        socket.broadcast.emit("cursor-position", {
+            ...cursorData,
+            userId: socket.id,
+        });
+    });
+
+    socket.on('disconnect', () => {
+        socket.broadcast.emit('user-disconnected', socket.id);
+    });
+});
 
 app.get('/', (req, res) => {
     res.send("server is working");

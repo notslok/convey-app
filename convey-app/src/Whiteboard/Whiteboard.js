@@ -15,14 +15,10 @@ import { createElement,
 import {v4 as uuid} from 'uuid';
 import { useDispatch } from 'react-redux';
 import { updateElement as updateElementInStore } from './WhiteboardSlice';
+import { emitCursorPosition } from '../socketConnector/socketConnector';
 
-
-
-// let selectedElement;
-// const setSelectedElement = (el) => {
-//   selectedElement = el;
-// }
-
+let emitCursor = true;
+let lastCursorPosition;
 
 const Whiteboard = () => {
   
@@ -164,6 +160,21 @@ const Whiteboard = () => {
 
   const handleMouseMove = (event) => {
     const {clientX, clientY} = event;
+
+    // broadcast cursor info--------------------
+    lastCursorPosition = {x: clientX, y: clientY};
+
+    if(emitCursor){
+      emitCursorPosition({x: clientX, y: clientY});
+      emitCursor = false;
+      console.log(1)
+      setTimeout(() => {
+        emitCursor = true;
+        emitCursorPosition(lastCursorPosition);
+      }, [50]);
+    }
+    //-----------------------------
+
     
     if(action === actions.DRAWING){
         // find index of selected element
