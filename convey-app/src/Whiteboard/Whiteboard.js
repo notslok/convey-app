@@ -9,7 +9,8 @@ import { createElement,
          adjustmentRequired, 
          adjustElementCoordinates, 
          getElementAtPosition,
-         getCursorForPosition, } from './utils';
+         getCursorForPosition, 
+         getResizedCoordinates } from './utils';
 import {v4 as uuid} from 'uuid';
 import { useDispatch } from 'react-redux';
 import { updateElement as updateElementInStore } from './WhiteboardSlice';
@@ -35,7 +36,7 @@ const Whiteboard = () => {
 
   useLayoutEffect(() => {
     const canvas = canvasRef.current;
-
+    
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0,0,canvas.width,canvas.height);
     
@@ -123,7 +124,7 @@ const Whiteboard = () => {
 
     if(selectedElementIndex !== -1){
 
-      if(action === actions.DRAWING){
+      if(action === actions.DRAWING || action === actions.RESIZING){
         
         if(adjustmentRequired(elements[selectedElementIndex].type)){
             const {x1,y1,x2,y2} = adjustElementCoordinates(elements[selectedElementIndex]);
@@ -197,11 +198,36 @@ const Whiteboard = () => {
         }, elements);
       }
     }
+
+    if(toolType === toolTypes.SELECTION && action === actions.RESIZING && selectedElement){
+      const {id, type, position, ...coordinates} = selectedElement;
+      const {x1,y1,x2,y2} = getResizedCoordinates(
+        clientX,
+        clientY,
+        position,
+        coordinates,
+      );
+
+      const selectedElementIndex = elements.findIndex(el => el.id === selectedElement.id);
+
+      if(selectedElementIndex !== -1){
+        updateElement({
+          x1,
+          y1,
+          x2,
+          y2,
+          type: selectedElement.type,
+          id: selectedElement.id,
+          index: selectedElementIndex,
+        }, elements);
+      }
+    }
+
   }
 
   const handleTextAreaBlur = (event) => {
     const {id, x1, y1, type} = selectedElement;
-    const index = elements.findIndex(el => el.id ===selectedElement.id);
+    const index = elements.findIndex(el => el.id === selectedElement.id);
 
     if(index !== -1){
       updateElement({id, x1, y1, type, text:event.target.value, index}, elements);
