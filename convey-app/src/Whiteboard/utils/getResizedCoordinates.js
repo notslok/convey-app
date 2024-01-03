@@ -13,6 +13,6 @@ export const getResizedCoordinates = (clientX, clientY, position, coordinates) =
         case cursorPositions.BOTTOM_RIGHT:
             return {x1, y1, x2: clientX, y2: clientY};
         default:
-            null;
+            return null;
     }
 };

@@ -15,9 +15,14 @@ const positionWithinElement = (x, y, element) => {
             const bottomRight = nearPoint(x, y, x2, y2, cursorPositions.BOTTOM_RIGHT);    
 
             const inside = x>=x1 && x<=x2 && y>=y1 && y<=y2 
-            ? cursorPositions.INTSIDE : null;
+            ? cursorPositions.INSIDE : null;
 
             return topLeft || topRight || bottomLeft || bottomRight || inside;
+
+        case toolTypes.TEXT:
+            return x>=x1 && x<=x2 && y>=y1 && y<=y2
+                  ?  cursorPositions.INSIDE
+                  :  null;
     }
 }
 
