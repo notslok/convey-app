@@ -19,7 +19,7 @@ const onLine = ({x1, y1, x2, y2, x, y, maxDistance = 1}) => {
     };
 
     const offset = distance(a, b) - (distance(a, c) + distance(b, c));
-    
+
     return Math.abs(offset) < maxDistance ? cursorPositions.INSIDE : null;
 }
 
@@ -53,6 +53,18 @@ const positionWithinElement = (x, y, element) => {
             const end = nearPoint(x, y, x2, y2, cursorPositions.END);
 
             return start || end || on;
+        
+        case toolTypes.PENCIL:
+            const betweenAnyPoint = element.points.some((point, index) => {
+                const nextPoint = element.points[index + 1];
+                if(!nextPoint) return false;
+
+                return (
+                    onLine({x1:point.x, y1:point.y, x2:nextPoint.x, y2:nextPoint.y, x, y, maxDistance: 5})
+                );
+            });
+
+            return betweenAnyPoint ? cursorPositions.INSIDE : null;
     }
 }
 

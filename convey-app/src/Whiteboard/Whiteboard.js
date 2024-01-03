@@ -10,7 +10,8 @@ import { createElement,
          adjustElementCoordinates, 
          getElementAtPosition,
          getCursorForPosition, 
-         getResizedCoordinates } from './utils';
+         getResizedCoordinates,
+         updatePencilElementWhenMoving } from './utils';
 import {v4 as uuid} from 'uuid';
 import { useDispatch } from 'react-redux';
 import { updateElement as updateElementInStore } from './WhiteboardSlice';
@@ -86,7 +87,7 @@ const Whiteboard = () => {
           x2: clientX,
           y2: clientY,
           toolType,
-          id: uuid(), 
+          id: uuid(),
         });
         setAction(actions.WRITING);
         setSelectedElement(element);
@@ -99,7 +100,11 @@ const Whiteboard = () => {
 
           const element = getElementAtPosition(clientX, clientY, elements);
 
-          if(element && element.type === toolTypes.RECTANGLE || element.type === toolTypes.TEXT || element.type === toolTypes.LINE){
+          if(element === undefined) return; // ...using selection tool in empty space
+
+          if(element && element.type === toolTypes.RECTANGLE 
+             || element.type === toolTypes.TEXT 
+             || element.type === toolTypes.LINE){
             setAction(
               
               element.position === cursorPositions.INSIDE 
@@ -112,6 +117,15 @@ const Whiteboard = () => {
 
             setSelectedElement({...element, offsetX, offsetY});
           }
+
+          if(element && element.type === toolTypes.PENCIL){
+           setAction( actions.MOVING );
+
+           const xOffsets = element.points.map(point => clientX - point.x);
+           const yOffsets = element.points.map(point => clientY - point.y);
+
+           setSelectedElement({...element, xOffsets, yOffsets});
+         }
           break;
 
       }
@@ -176,7 +190,28 @@ const Whiteboard = () => {
       
     }
 
-    if(toolType === toolTypes.SELECTION && action === actions.MOVING && selectedElement){
+    if(selectedElement&&
+       toolType === toolTypes.SELECTION
+       && action === actions.MOVING
+       && selectedElement.type === toolTypes.PENCIL
+      ){
+        const newPoints = selectedElement.points.map((_, index) => ({
+          x: clientX - selectedElement.xOffsets[index],
+          y: clientY - selectedElement.yOffsets[index],
+        }));
+
+        const index = elements.findIndex((el) => el.id === selectedElement.id);
+
+        if(index !== -1){
+          updatePencilElementWhenMoving({index, newPoints}, elements);
+        }
+
+        return;
+      }
+
+    if(toolType === toolTypes.SELECTION 
+       && action === actions.MOVING 
+       && selectedElement){
       const {id, x1, x2, y1, y2, type, offsetX, offsetY, text} = selectedElement;
 
       const width = x2-x1;
