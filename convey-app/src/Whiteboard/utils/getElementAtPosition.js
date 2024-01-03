@@ -1,5 +1,9 @@
 import { toolTypes, cursorPositions } from "../../constants";
 
+const onLine = () => {
+    return null;
+}
+
 const nearPoint = (x,y,x1,y1, cursorPosition) => {
     return (Math.abs(x-x1)<5 && Math.abs(y-y1)<5) ? cursorPosition : null;
 }
@@ -23,6 +27,13 @@ const positionWithinElement = (x, y, element) => {
             return x>=x1 && x<=x2 && y>=y1 && y<=y2
                   ?  cursorPositions.INSIDE
                   :  null;
+        
+        case toolTypes.LINE:
+            const on = onLine({x1, y1, x2, y2, x, y});
+            const start = nearPoint(x, y, x1, y1, cursorPositions.START);
+            const end = nearPoint(x, y, x2, y2, cursorPositions.END);
+
+            return start || end || on;
     }
 }
 
