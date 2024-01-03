@@ -3,4 +3,5 @@ export const toolTypes = {
     LINE: "LINE",
     PENCIL: "PENCIL",
     TEXT: "TEXT",
+    SELECTION: "SELECTION",
 };

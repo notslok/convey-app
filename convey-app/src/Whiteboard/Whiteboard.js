@@ -2,8 +2,14 @@ import React, {useRef, useLayoutEffect, useState} from 'react';
 import { UseSelector, useSelector } from 'react-redux/es/hooks/useSelector';
 import Menu from './Menu';
 import rough from 'roughjs';
-import { toolTypes, actions } from '../constants';
-import { createElement, updateElement, drawElement, adjustmentRequired, adjustElementCoordinates } from './utils';
+import { toolTypes, actions, cursorPositions } from '../constants';
+import { createElement, 
+         updateElement, 
+         drawElement, 
+         adjustmentRequired, 
+         adjustElementCoordinates, 
+         getElementAtPosition,
+         getCursorForPosition, } from './utils';
 import {v4 as uuid} from 'uuid';
 import { useDispatch } from 'react-redux';
 import { updateElement as updateElementInStore } from './WhiteboardSlice';
@@ -49,30 +55,65 @@ const Whiteboard = () => {
       return;
     }
 
-    const element = createElement({
-      x1: clientX,
-      y1: clientY,
-      x2: clientX,
-      y2: clientY,
-      toolType,
-      id: uuid(), 
-    });
-
     switch(toolType){
+
       case toolTypes.RECTANGLE:
       case toolTypes.LINE:
-      case toolTypes.PENCIL:
+      case toolTypes.PENCIL:{
+  
+          const element = createElement({
+          x1: clientX,
+          y1: clientY,
+          x2: clientX,
+          y2: clientY,
+          toolType,
+          id: uuid(), 
+        });
         setAction(actions.DRAWING);
+        setSelectedElement(element);
+        dispatch(updateElementInStore(element));
         break;
+
+      }
       
-      case toolTypes.TEXT:
+      case toolTypes.TEXT:{
+
+          const element = createElement({
+          x1: clientX,
+          y1: clientY,
+          x2: clientX,
+          y2: clientY,
+          toolType,
+          id: uuid(), 
+        });
         setAction(actions.WRITING);
+        setSelectedElement(element);
+        dispatch(updateElementInStore(element));
         break;
+
+      }
+
+      case toolTypes.SELECTION:{
+
+          const element = getElementAtPosition(clientX, clientY, elements);
+
+          if(element && element.type === toolTypes.RECTANGLE){
+            setAction(
+              
+              element.position === cursorPositions.INTSIDE 
+                                  ? actions.MOVING 
+                                  : actions.RESIZING
+            );
+
+            const offsetX = clientX - element.x1;
+            const offsetY = clientY - element.y1;
+
+            setSelectedElement({...element, offsetX, offsetY});
+          }
+          break;
+
+      }
     }
-
-    setSelectedElement(element);
-    dispatch(updateElementInStore(element));
-
 
   };
 
@@ -123,6 +164,38 @@ const Whiteboard = () => {
             type: elements[index].type,
           }, elements)
         }
+    }
+
+    if(toolType === toolTypes.SELECTION){
+      const element = getElementAtPosition(clientX, clientY, elements);
+      
+      
+      event.target.style.cursor = element ? getCursorForPosition(element.position) : "default";
+      
+    }
+
+    if(toolType === toolTypes.SELECTION && action === actions.MOVING && selectedElement){
+      const {id, x1, x2, y1, y2, type, offsetX, offsetY} = selectedElement;
+
+      const width = x2-x1;
+      const height = y2-y1;
+      
+      const newX1 = clientX - offsetX;
+      const newY1 = clientY - offsetY;
+      
+      const index = elements.findIndex((el) => el.id === selectedElement.id);
+
+      if(index != -1){
+        updateElement({
+          id,
+          x1: newX1,
+          y1: newY1,
+          x2: newX1 + width,
+          y2: newY1 + height,
+          type,
+          index,
+        }, elements);
+      }
     }
   }
 

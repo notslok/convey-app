@@ -6,3 +6,5 @@ export {updateElement} from './updateElement';
 export {adjustmentRequired} from './adjustmentRequired';
 export {adjustElementCoordinates} from './adjustElementCoordinates';
 export {getSvgPathFromStroke} from './getSvgPathFromStroke';
+export {getElementAtPosition} from './getElementAtPosition';
+export {getCursorForPosition} from './getCursorForPosition';
