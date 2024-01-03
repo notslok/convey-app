@@ -5,5 +5,5 @@ export const cursorPositions = {
     END: "END",
     BOTTOM_RIGHT: "BOTTOM_RIGHT",
     BOTTOM_LEFT: "BOTTOM_LEFT",
-    INTSIDE: "INSIDE",
+    INSIDE: "INSIDE",
 }

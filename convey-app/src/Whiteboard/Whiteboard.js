@@ -49,6 +49,7 @@ const Whiteboard = () => {
   }, [elements]);
   
   const handleMouseDown = (event) => {
+
     const {clientX, clientY} = event;
     // console.log(toolType);
 
@@ -98,10 +99,10 @@ const Whiteboard = () => {
 
           const element = getElementAtPosition(clientX, clientY, elements);
 
-          if(element && element.type === toolTypes.RECTANGLE){
+          if(element && element.type === toolTypes.RECTANGLE || element.type === toolTypes.TEXT || element.type === toolTypes.LINE){
             setAction(
               
-              element.position === cursorPositions.INTSIDE 
+              element.position === cursorPositions.INSIDE 
                                   ? actions.MOVING 
                                   : actions.RESIZING
             );
@@ -176,7 +177,7 @@ const Whiteboard = () => {
     }
 
     if(toolType === toolTypes.SELECTION && action === actions.MOVING && selectedElement){
-      const {id, x1, x2, y1, y2, type, offsetX, offsetY} = selectedElement;
+      const {id, x1, x2, y1, y2, type, offsetX, offsetY, text} = selectedElement;
 
       const width = x2-x1;
       const height = y2-y1;
@@ -195,6 +196,7 @@ const Whiteboard = () => {
           y2: newY1 + height,
           type,
           index,
+          text,
         }, elements);
       }
     }

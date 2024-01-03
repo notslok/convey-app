@@ -51,7 +51,7 @@ export const createElement = ({x1, y1, x2, y2, toolType, id, text}) => {
             };
         
         case toolTypes.TEXT:
-            return {id, type: toolType, x1, y1, text: text || ''};
+            return {id, type: toolType, x1, y1, x2, y2, text: text || ''};
         default:
             throw new Error("Something went wrong while creating element")
     }
